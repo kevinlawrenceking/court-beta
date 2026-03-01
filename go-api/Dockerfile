@@ -11,17 +11,24 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /bin/api ./cmd/api
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /bin/worker ./cmd/worker
 
-# Runtime stage
-FROM alpine:3.19
+# API runtime
+FROM alpine:3.19 AS api
 
 RUN apk add --no-cache ca-certificates tzdata
 
 WORKDIR /app
 COPY --from=builder /bin/api /bin/api
-COPY --from=builder /bin/worker /bin/worker
 COPY migrations/ /app/migrations/
 
 EXPOSE 8080
-
-# Default to running the API server; override CMD for worker
 CMD ["/bin/api"]
+
+# Worker runtime
+FROM alpine:3.19 AS worker
+
+RUN apk add --no-cache ca-certificates tzdata
+
+WORKDIR /app
+COPY --from=builder /bin/worker /bin/worker
+
+CMD ["/bin/worker"]
