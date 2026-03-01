@@ -36,8 +36,8 @@ func main() {
 
 	// Initialize S3 storage
 	var s3Store *storage.S3Store
-	if cfg.IsDevelopment() {
-		s3Store, err = storage.NewS3StoreWithEndpoint(ctx, cfg.AWSRegion, "http://localhost:4566")
+	if cfg.AWSEndpoint != "" {
+		s3Store, err = storage.NewS3StoreWithEndpoint(ctx, cfg.AWSRegion, cfg.AWSEndpoint)
 	} else {
 		s3Store, err = storage.NewS3Store(ctx, cfg.AWSRegion)
 	}
@@ -58,12 +58,16 @@ func main() {
 
 	// 3. Cleanup Worker - runs every 24 hours
 	if s3Store != nil {
-		cleaner := worker.NewCleanupWorker(pool, s3Store, cfg.S3DocsBucket, 24*time.Hour)
+		cleaner := worker.NewCleanupWorker(pool, s3Store, cfg.S3DocumentsBucket, 24*time.Hour)
 		go cleaner.Start(ctx)
 	}
 
-	// 4. Email Notifier - checks every 5 minutes
-	notifier := worker.NewEmailNotifier(pool, 5*time.Minute, "noreply@docketwatch.tmz.tv")
+	// 4. Email Notifier - checks every 5 minutes, sends via SES
+	appURL := "https://docketwatch.tmz.tv"
+	if cfg.IsDevelopment() {
+		appURL = "http://localhost:3000"
+	}
+	notifier := worker.NewEmailNotifier(pool, cfg.AWSRegion, cfg.AWSEndpoint, 5*time.Minute, cfg.SESFromAddress, appURL)
 	go notifier.Start(ctx)
 
 	log.Info().Msg("All workers running")

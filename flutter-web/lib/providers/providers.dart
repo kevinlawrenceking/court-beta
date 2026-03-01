@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
+import '../config/routes.dart';
 import '../models/case_model.dart';
 import '../models/event_model.dart';
 import '../models/celebrity_model.dart';
@@ -9,13 +11,29 @@ import '../models/reference_models.dart';
 
 // ──────────────────── Service Providers ────────────────────
 
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
-
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
+
+final apiClientProvider = Provider<ApiClient>((ref) {
+  final api = ApiClient();
+  final auth = ref.watch(authServiceProvider);
+  api.setAuthService(auth);
+
+  // On irrecoverable 401, sign out and redirect to login.
+  api.setOnUnauthorized(() async {
+    await auth.signOut();
+    ref.read(isAuthenticatedProvider.notifier).state = false;
+  });
+
+  return api;
+});
 
 // ──────────────────── Auth State ────────────────────
 
 final isAuthenticatedProvider = StateProvider<bool>((ref) => false);
+
+// ──────────────────── Router ────────────────────
+
+final routerProvider = Provider<GoRouter>((ref) => buildRouter(ref));
 
 // ──────────────────── Case Providers ────────────────────
 

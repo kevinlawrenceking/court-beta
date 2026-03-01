@@ -17,4 +17,24 @@ class ApiConfig {
 
   /// Upload timeout in seconds (for large PDFs).
   static const int uploadTimeoutSeconds = 120;
+
+  /// AWS Cognito configuration.
+  static const String cognitoRegion = String.fromEnvironment(
+    'COGNITO_REGION',
+    defaultValue: 'us-east-1',
+  );
+
+  static const String cognitoUserPoolId = String.fromEnvironment(
+    'COGNITO_USER_POOL_ID',
+    defaultValue: '',
+  );
+
+  static const String cognitoClientId = String.fromEnvironment(
+    'COGNITO_CLIENT_ID',
+    defaultValue: '',
+  );
+
+  /// Cognito Identity Provider endpoint.
+  static String get cognitoEndpoint =>
+      'https://cognito-idp.$cognitoRegion.amazonaws.com/';
 }

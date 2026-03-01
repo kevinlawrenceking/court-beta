@@ -142,12 +142,8 @@ resource "aws_ecr_repository" "python_worker" {
   }
 }
 
-# Lifecycle policy to keep last 10 images
-resource "aws_ecr_lifecycle_policy" "cleanup" {
-  for_each   = toset(["api", "worker", "python_worker"])
-  repository = aws_ecr_repository[each.key].name
-
-  policy = jsonencode({
+locals {
+  ecr_lifecycle_policy = jsonencode({
     rules = [{
       rulePriority = 1
       description  = "Keep last 10 images"
@@ -161,6 +157,21 @@ resource "aws_ecr_lifecycle_policy" "cleanup" {
       }
     }]
   })
+}
+
+resource "aws_ecr_lifecycle_policy" "api" {
+  repository = aws_ecr_repository.api.name
+  policy     = local.ecr_lifecycle_policy
+}
+
+resource "aws_ecr_lifecycle_policy" "worker" {
+  repository = aws_ecr_repository.worker.name
+  policy     = local.ecr_lifecycle_policy
+}
+
+resource "aws_ecr_lifecycle_policy" "python_worker" {
+  repository = aws_ecr_repository.python_worker.name
+  policy     = local.ecr_lifecycle_policy
 }
 
 # ─── ECS Task Execution Role ────────────────────────────────────────────────

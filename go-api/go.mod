@@ -8,6 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider v1.48.4
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.71.1
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.34.8
+	github.com/aws/aws-sdk-go-v2/service/sesv2 v1.38.2
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.37.3
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-chi/cors v1.2.1

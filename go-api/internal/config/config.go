@@ -29,6 +29,9 @@ type Config struct {
 	CognitoClientID   string
 	CognitoIssuer     string
 
+	// SES
+	SESFromAddress string
+
 	// PACER
 	PACERBaseURL string
 
@@ -56,6 +59,7 @@ func Load() (*Config, error) {
 		CognitoUserPoolID: getEnv("COGNITO_USER_POOL_ID", ""),
 		CognitoClientID:   getEnv("COGNITO_CLIENT_ID", ""),
 		CognitoIssuer:     getEnv("COGNITO_ISSUER", ""),
+		SESFromAddress:     getEnv("SES_FROM_ADDRESS", "noreply@docketwatch.tmz.tv"),
 		PACERBaseURL:       getEnv("PACER_BASE_URL", "https://ecf.pacer.gov"),
 		GeminiAPIKey:       getEnv("GEMINI_API_KEY", ""),
 		DefaultPageSize:    getEnvInt("DEFAULT_PAGE_SIZE", 25),

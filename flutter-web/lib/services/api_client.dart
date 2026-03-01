@@ -7,11 +7,18 @@ import '../models/event_model.dart';
 import '../models/document_model.dart';
 import '../models/celebrity_model.dart';
 import '../models/reference_models.dart';
+import 'auth_service.dart';
+
+/// Callback invoked when a 401 triggers sign-out.
+typedef OnUnauthorized = void Function();
 
 /// Central API client using Dio for all backend communication.
 class ApiClient {
   late final Dio _dio;
   String? _authToken;
+  AuthService? _authService;
+  OnUnauthorized? _onUnauthorized;
+  bool _isRefreshing = false;
 
   ApiClient() {
     _dio = Dio(BaseOptions(
@@ -28,21 +35,55 @@ class ApiClient {
         }
         return handler.next(options);
       },
-      onError: (error, handler) {
-        if (error.response?.statusCode == 401) {
-          // TODO: Trigger re-authentication via Cognito refresh token
-          debugPrint('Unauthorized - token may be expired');
+      onError: (error, handler) async {
+        if (error.response?.statusCode == 401 && !_isRefreshing) {
+          final refreshed = await _tryRefreshToken();
+          if (refreshed) {
+            // Retry the original request with the new token.
+            final opts = error.requestOptions;
+            opts.headers['Authorization'] = 'Bearer $_authToken';
+            try {
+              final response = await _dio.fetch(opts);
+              return handler.resolve(response);
+            } catch (e) {
+              return handler.next(error);
+            }
+          } else {
+            _onUnauthorized?.call();
+          }
         }
         return handler.next(error);
       },
     ));
   }
 
+  /// Wire in the auth service for automatic token refresh.
+  void setAuthService(AuthService service) => _authService = service;
+
+  /// Set callback for when auth is irrecoverably expired.
+  void setOnUnauthorized(OnUnauthorized callback) =>
+      _onUnauthorized = callback;
+
   /// Sets the JWT auth token for subsequent requests.
   void setAuthToken(String token) => _authToken = token;
 
   /// Clears the auth token (on logout).
   void clearAuthToken() => _authToken = null;
+
+  Future<bool> _tryRefreshToken() async {
+    if (_authService == null) return false;
+    _isRefreshing = true;
+    try {
+      final success = await _authService!.refreshSession();
+      if (success) {
+        _authToken = _authService!.accessToken;
+        return true;
+      }
+      return false;
+    } finally {
+      _isRefreshing = false;
+    }
+  }
 
   // ──────────────────── Cases ────────────────────
 
