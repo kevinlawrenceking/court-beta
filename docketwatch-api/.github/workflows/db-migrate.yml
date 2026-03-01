@@ -1,0 +1,58 @@
+name: DB Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      direction:
+        description: "Migration direction"
+        required: true
+        default: "up"
+        type: choice
+        options:
+          - up
+          - down
+      steps:
+        description: "Number of steps (for down only)"
+        required: false
+        default: "1"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  migrate:
+    name: Run Migration (${{ inputs.direction }})
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-west-2
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Install migrate CLI
+        run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+      - name: Show current version
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: migrate -path migrations -database "$DATABASE_URL" version || true
+
+      - name: Run migration UP
+        if: inputs.direction == 'up'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: migrate -path migrations -database "$DATABASE_URL" up
+
+      - name: Run migration DOWN
+        if: inputs.direction == 'down'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: migrate -path migrations -database "$DATABASE_URL" down ${{ inputs.steps }}

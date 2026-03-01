@@ -1,0 +1,93 @@
+version: "3.8"
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: docketwatch
+      POSTGRES_USER: docketwatch
+      POSTGRES_PASSWORD: docketwatch
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docketwatch"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # LocalStack (S3, SQS for local dev)
+  localstack:
+    image: localstack/localstack:3
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3,sqs
+      DEFAULT_REGION: us-east-1
+    volumes:
+      - localstack-data:/var/lib/localstack
+      - ./scripts/localstack-init.sh:/etc/localstack/init/ready.d/init.sh
+
+  # Go API server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: "8080"
+      ENV: development
+      DATABASE_URL: postgres://docketwatch:docketwatch@postgres:5432/docketwatch?sslmode=disable
+      AWS_REGION: us-east-1
+      AWS_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      S3_DOCUMENTS_BUCKET: dw-documents
+      S3_UPLOADS_BUCKET: dw-uploads
+      SQS_SUMMARIZE_QUEUE_URL: http://localstack:4566/000000000000/dw-summarize
+      SQS_QA_QUEUE_URL: http://localstack:4566/000000000000/dw-qa
+      SQS_PACER_QUEUE_URL: http://localstack:4566/000000000000/dw-pacer
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_started
+
+  # Go background worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: worker
+    environment:
+      ENV: development
+      DATABASE_URL: postgres://docketwatch:docketwatch@postgres:5432/docketwatch?sslmode=disable
+      AWS_REGION: us-east-1
+      AWS_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      S3_DOCUMENTS_BUCKET: dw-documents
+      SQS_SUMMARIZE_QUEUE_URL: http://localstack:4566/000000000000/dw-summarize
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_started
+
+  # Database migrations
+  migrate:
+    image: migrate/migrate:v4.17.0
+    volumes:
+      - ./migrations:/migrations
+    command: ["-path", "/migrations", "-database", "postgres://docketwatch:docketwatch@postgres:5432/docketwatch?sslmode=disable", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  localstack-data:

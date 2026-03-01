@@ -1,0 +1,91 @@
+/*
+ * DocketWatch Data Migration: SQL Server → PostgreSQL
+ *
+ * Uses pgloader to automatically migrate all tables from the
+ * SQL Server docketwatch database to PostgreSQL on RDS.
+ *
+ * Usage:
+ *   pgloader pgloader.load
+ *
+ * Prerequisites:
+ *   - Source SQL Server accessible
+ *   - Target PostgreSQL RDS instance created
+ *   - Initial schema applied via go-api migrations
+ *
+ * Notes:
+ *   - Run with --dry-run first to validate
+ *   - Schema 'dbo' maps to 'public' in PostgreSQL
+ *   - IDENTITY columns become SERIAL with sequences
+ *   - DATETIME2 → TIMESTAMPTZ, BIT → BOOLEAN
+ *   - NVARCHAR(MAX) → TEXT
+ */
+
+LOAD DATABASE
+    FROM mssql://sa:YourPassword@sqlserver-host:1433/docketwatch
+    INTO postgresql://docketwatch:docketwatch@rds-host:5432/docketwatch
+
+WITH
+    workers = 4,
+    concurrency = 2,
+    batch rows = 1000,
+    prefetch rows = 5000,
+    -- Disable triggers during load for performance
+    disable triggers
+
+SET
+    maintenance_work_mem to '512MB',
+    work_mem to '64MB'
+
+-- Map dbo schema to public
+ALTER SCHEMA 'dbo' RENAME TO 'public'
+
+-- Cast rules for type conversion
+CAST
+    type nvarchar to text using remove-null-characters,
+    type varchar  to text using remove-null-characters,
+    type ntext    to text using remove-null-characters,
+    type bit      to boolean using bits-to-boolean,
+    type datetime  to timestamptz,
+    type datetime2 to timestamptz,
+    type uniqueidentifier to uuid,
+    type money    to numeric drop typemod,
+    type tinyint  to smallint
+
+-- Include all tables
+INCLUDING ONLY TABLE NAMES MATCHING
+    'cases',
+    'case_events',
+    'documents',
+    'celebrities',
+    'celebrity_names',
+    'case_celebrity_matches',
+    'courts',
+    'counties',
+    'states',
+    'users',
+    'tools',
+    'case_email_recipients',
+    'hearings',
+    'gemini_api_log',
+    'summary_qc_feedback',
+    'document_prompts',
+    'articles',
+    'scheduled_task_log',
+    'case_priority',
+    'case_links',
+    'attachments'
+
+-- After load: reset sequences to max(id) + 1
+AFTER LOAD DO
+    $$ SELECT setval(pg_get_serial_sequence(t.table_name, 'id'),
+              coalesce(max(id), 0) + 1, false)
+       FROM information_schema.tables t
+       JOIN information_schema.columns c
+         ON t.table_name = c.table_name
+        AND c.column_name = 'id'
+        AND c.column_default LIKE 'nextval%'
+       WHERE t.table_schema = 'public'
+       CROSS JOIN LATERAL (
+         SELECT max(id) FROM public. || t.table_name
+       ) sub $$
+;

@@ -1,0 +1,171 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-west-2
+
+jobs:
+  build-api:
+    name: Build API Image
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr
+
+      - name: Build and push
+        id: meta
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          ECR_REPO: docketwatch-production-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build --target api -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPO:latest .
+          docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPO:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+  build-worker:
+    name: Build Go Worker Image
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr
+
+      - name: Build and push
+        id: meta
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          ECR_REPO: docketwatch-production-worker
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build --target worker -t $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPO:latest .
+          docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPO:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+  deploy-api:
+    name: Deploy API
+    runs-on: ubuntu-latest
+    needs: build-api
+    environment: production
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster docketwatch-production-cluster \
+            --service docketwatch-production-api \
+            --force-new-deployment
+
+      - name: Wait for stable
+        run: |
+          aws ecs wait services-stable \
+            --cluster docketwatch-production-cluster \
+            --services docketwatch-production-api
+
+  deploy-worker:
+    name: Deploy Go Worker
+    runs-on: ubuntu-latest
+    needs: build-worker
+    environment: production
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster docketwatch-production-cluster \
+            --service docketwatch-production-worker \
+            --force-new-deployment
+
+      - name: Wait for stable
+        run: |
+          aws ecs wait services-stable \
+            --cluster docketwatch-production-cluster \
+            --services docketwatch-production-worker
+
+  migrate:
+    name: Run DB Migrations
+    runs-on: ubuntu-latest
+    needs: [deploy-api]
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Install migrate
+        run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: migrate -path migrations -database "$DATABASE_URL" up
+
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    needs: [deploy-api, migrate]
+    steps:
+      - name: Health check API
+        run: |
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://docketwatch.tmz.tv/api/health || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "API health check passed"
+              exit 0
+            fi
+            echo "Attempt $i: got $STATUS, waiting..."
+            sleep 10
+          done
+          echo "API health check failed"
+          exit 1
