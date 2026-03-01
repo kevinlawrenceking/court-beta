@@ -18,6 +18,7 @@ import (
 	"github.com/tmz/docketwatch-api/internal/auth"
 	"github.com/tmz/docketwatch-api/internal/config"
 	"github.com/tmz/docketwatch-api/internal/handler"
+	"github.com/tmz/docketwatch-api/internal/queue"
 	"github.com/tmz/docketwatch-api/internal/repository"
 	"github.com/tmz/docketwatch-api/internal/storage"
 )
@@ -53,13 +54,20 @@ func main() {
 
 	// Initialize S3 storage
 	var s3Store *storage.S3Store
-	if cfg.IsDevelopment() {
-		s3Store, err = storage.NewS3StoreWithEndpoint(ctx, cfg.AWSRegion, "http://localhost:4566")
+	if cfg.AWSEndpoint != "" {
+		s3Store, err = storage.NewS3StoreWithEndpoint(ctx, cfg.AWSRegion, cfg.AWSEndpoint)
 	} else {
 		s3Store, err = storage.NewS3Store(ctx, cfg.AWSRegion)
 	}
 	if err != nil {
 		log.Warn().Err(err).Msg("S3 store initialization failed; file operations will be unavailable")
+	}
+
+	// Initialize SQS client
+	var sqsClient *queue.SQSClient
+	sqsClient, err = queue.NewSQSClient(ctx, cfg.AWSRegion, cfg.AWSEndpoint)
+	if err != nil {
+		log.Warn().Err(err).Msg("SQS client initialization failed; queue operations will be unavailable")
 	}
 
 	// Initialize repositories
@@ -77,7 +85,7 @@ func main() {
 	// Initialize handlers
 	caseHandler := handler.NewCaseHandler(caseRepo, userRepo, cfg)
 	eventHandler := handler.NewEventHandler(eventRepo, cfg)
-	docHandler := handler.NewDocumentHandler(docRepo, s3Store, cfg)
+	docHandler := handler.NewDocumentHandler(docRepo, s3Store, sqsClient, cfg)
 	celebHandler := handler.NewCelebrityHandler(celebRepo, cfg)
 	matchHandler := handler.NewMatchHandler(matchRepo, cfg)
 	monitorHandler := handler.NewMonitorHandler(eventRepo)

@@ -10,9 +10,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 	"github.com/tmz/docketwatch-api/internal/auth"
 	"github.com/tmz/docketwatch-api/internal/config"
 	"github.com/tmz/docketwatch-api/internal/model"
+	"github.com/tmz/docketwatch-api/internal/queue"
 	"github.com/tmz/docketwatch-api/internal/repository"
 	"github.com/tmz/docketwatch-api/internal/storage"
 )
@@ -21,15 +23,17 @@ import (
 type DocumentHandler struct {
 	repo     *repository.DocumentRepo
 	store    *storage.S3Store
+	sqs      *queue.SQSClient
 	cfg      *config.Config
 	validate *validator.Validate
 }
 
 // NewDocumentHandler creates a new DocumentHandler.
-func NewDocumentHandler(repo *repository.DocumentRepo, store *storage.S3Store, cfg *config.Config) *DocumentHandler {
+func NewDocumentHandler(repo *repository.DocumentRepo, store *storage.S3Store, sqsClient *queue.SQSClient, cfg *config.Config) *DocumentHandler {
 	return &DocumentHandler{
 		repo:     repo,
 		store:    store,
+		sqs:      sqsClient,
 		cfg:      cfg,
 		validate: validator.New(),
 	}
@@ -165,8 +169,18 @@ func (h *DocumentHandler) Summarize(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Send SQS message to summarize queue
-	// sqs.SendMessage(ctx, h.cfg.SQSSummarizeURL, {doc_id, s3_key})
+	if h.sqs != nil {
+		msg := queue.SummarizeMessage{
+			DocumentID: doc.ID,
+			S3Key:      doc.S3Key,
+			S3Bucket:   h.cfg.S3DocumentsBucket,
+		}
+		if err := h.sqs.SendSummarize(r.Context(), h.cfg.SQSSummarizeURL, msg); err != nil {
+			log.Error().Err(err).Int("doc_id", doc.ID).Msg("Failed to queue summarization")
+			writeError(w, http.StatusInternalServerError, "QUEUE_ERROR", "Failed to queue summarization")
+			return
+		}
+	}
 
 	writeJSON(w, http.StatusAccepted, map[string]interface{}{
 		"status":  "queued",
@@ -183,8 +197,28 @@ func (h *DocumentHandler) DownloadPacer(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_ = id
-	// TODO: Implement PACER download via SQS queue
+	var req struct {
+		PACERUrl string `json:"pacer_url" validate:"required,url"`
+	}
+	if err := decodeJSON(r, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "INVALID_JSON", "Invalid request body")
+		return
+	}
+
+	if h.sqs != nil {
+		msg := queue.PACERMessage{
+			DocumentID: id,
+			PACERUrl:   req.PACERUrl,
+			S3Bucket:   h.cfg.S3DocumentsBucket,
+			S3Key:      fmt.Sprintf("docs/%d/pacer_%s.pdf", id, uuid.New().String()[:8]),
+		}
+		if err := h.sqs.SendPACER(r.Context(), h.cfg.SQSPacerURL, msg); err != nil {
+			log.Error().Err(err).Int("doc_id", id).Msg("Failed to queue PACER download")
+			writeError(w, http.StatusInternalServerError, "QUEUE_ERROR", "Failed to queue PACER download")
+			return
+		}
+	}
+
 	writeJSON(w, http.StatusAccepted, map[string]string{
 		"status":  "queued",
 		"message": "PACER download queued",
@@ -209,8 +243,25 @@ func (h *DocumentHandler) Ask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = id
-	// TODO: Send to Q&A SQS queue and await response
+	user := auth.GetUser(r.Context())
+	username := "anonymous"
+	if user != nil {
+		username = user.Username
+	}
+
+	if h.sqs != nil {
+		msg := queue.QAMessage{
+			DocumentID: id,
+			Question:   req.Question,
+			Username:   username,
+		}
+		if err := h.sqs.SendQA(r.Context(), h.cfg.SQSQAURL, msg); err != nil {
+			log.Error().Err(err).Int("doc_id", id).Msg("Failed to queue Q&A request")
+			writeError(w, http.StatusInternalServerError, "QUEUE_ERROR", "Failed to queue question")
+			return
+		}
+	}
+
 	writeJSON(w, http.StatusAccepted, map[string]string{
 		"status":  "queued",
 		"message": "Question queued for processing",

@@ -16,12 +16,13 @@ type Config struct {
 	DatabaseURL string
 
 	// AWS
-	AWSRegion        string
-	S3DocsBucket     string
-	S3UploadsBucket  string
-	SQSSummarizeURL  string
-	SQSOcrURL        string
-	SQSMatchURL      string
+	AWSRegion         string
+	AWSEndpoint       string // LocalStack endpoint for local dev
+	S3DocumentsBucket string
+	S3UploadsBucket   string
+	SQSSummarizeURL   string
+	SQSQAURL          string
+	SQSPacerURL       string
 
 	// Cognito
 	CognitoUserPoolID string
@@ -45,12 +46,13 @@ func Load() (*Config, error) {
 		Port:            getEnv("PORT", "8080"),
 		Env:             getEnv("ENV", "development"),
 		DatabaseURL:     getEnv("DATABASE_URL", "postgres://docketwatch:docketwatch@localhost:5432/docketwatch?sslmode=disable"),
-		AWSRegion:       getEnv("AWS_REGION", "us-east-1"),
-		S3DocsBucket:    getEnv("S3_DOCS_BUCKET", "dw-documents"),
-		S3UploadsBucket: getEnv("S3_UPLOADS_BUCKET", "dw-uploads"),
-		SQSSummarizeURL: getEnv("SQS_SUMMARIZE_URL", ""),
-		SQSOcrURL:       getEnv("SQS_OCR_URL", ""),
-		SQSMatchURL:     getEnv("SQS_MATCH_URL", ""),
+		AWSRegion:         getEnv("AWS_REGION", "us-east-1"),
+		AWSEndpoint:       getEnv("AWS_ENDPOINT", ""),
+		S3DocumentsBucket: getEnv("S3_DOCUMENTS_BUCKET", "dw-documents"),
+		S3UploadsBucket:   getEnv("S3_UPLOADS_BUCKET", "dw-uploads"),
+		SQSSummarizeURL:   getEnv("SQS_SUMMARIZE_QUEUE_URL", ""),
+		SQSQAURL:          getEnv("SQS_QA_QUEUE_URL", ""),
+		SQSPacerURL:       getEnv("SQS_PACER_QUEUE_URL", ""),
 		CognitoUserPoolID: getEnv("COGNITO_USER_POOL_ID", ""),
 		CognitoClientID:   getEnv("COGNITO_CLIENT_ID", ""),
 		CognitoIssuer:     getEnv("COGNITO_ISSUER", ""),
