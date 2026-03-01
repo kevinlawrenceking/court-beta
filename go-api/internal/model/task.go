@@ -28,6 +28,18 @@ type GeminiAPILog struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
+// ErrorLog represents an application error record.
+type ErrorLog struct {
+	ID         int       `json:"id"`
+	ScriptName string    `json:"script_name"`
+	ErrorType  string    `json:"error_type"`
+	Message    string    `json:"message"`
+	Detail     string    `json:"detail,omitempty"`
+	Severity   string    `json:"severity"`
+	Resolved   bool      `json:"resolved"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
 // Article represents an AI-generated headline/article.
 type Article struct {
 	ID        int       `json:"id"`

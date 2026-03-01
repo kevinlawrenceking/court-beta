@@ -354,6 +354,38 @@ class ApiClient {
     return list.map((e) => ToolModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  // ──────────────────── Admin ────────────────────
+
+  Future<List<Map<String, dynamic>>> getTaskLogs({int limit = 50}) async {
+    final res = await _dio.get('/api/admin/tasks', queryParameters: {'limit': limit});
+    return (res.data['data'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
+  }
+
+  Future<List<Map<String, dynamic>>> getErrorLogs({
+    String? severity,
+    bool? resolved,
+    int limit = 100,
+  }) async {
+    final params = <String, dynamic>{'limit': limit};
+    if (severity != null) params['severity'] = severity;
+    if (resolved != null) params['resolved'] = resolved;
+    final res = await _dio.get('/api/admin/errors', queryParameters: params);
+    return (res.data['data'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
+  }
+
+  Future<int> resolveErrors(List<int> ids) async {
+    final res = await _dio.post('/api/admin/errors/resolve', data: {'ids': ids});
+    return res.data['resolved'] as int? ?? 0;
+  }
+
+  Future<List<Map<String, dynamic>>> getArticles({int limit = 50}) async {
+    final res = await _dio.get('/api/admin/articles', queryParameters: {'limit': limit});
+    return (res.data['data'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
+  }
+
   // ──────────────────── Helpers ────────────────────
 
   PaginatedResponse<T> _parsePaginated<T>(

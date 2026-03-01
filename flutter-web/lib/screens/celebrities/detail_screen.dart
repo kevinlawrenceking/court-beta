@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../models/case_model.dart';
 import '../../providers/providers.dart';
 import '../../widgets/loading_state.dart';
-import '../../widgets/status_badge.dart';
 
 /// Provider that fetches matches for a specific celebrity.
 final _celebrityMatchesProvider = FutureProvider.autoDispose
-    .family<List<dynamic>, int>((ref, celebrityId) async {
+    .family<List<CelebrityMatchModel>, int>((ref, celebrityId) async {
   final api = ref.watch(apiClientProvider);
   final response = await api.getMatches(celebrityId: celebrityId, perPage: 100);
   return response.data;

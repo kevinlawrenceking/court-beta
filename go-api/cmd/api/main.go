@@ -78,6 +78,7 @@ func main() {
 	matchRepo := repository.NewMatchRepo(pool)
 	courtRepo := repository.NewCourtRepo(pool)
 	userRepo := repository.NewUserRepo(pool)
+	adminRepo := repository.NewAdminRepo(pool)
 
 	// Initialize auth middleware
 	authMW := auth.NewMiddleware(cfg.CognitoIssuer, cfg.CognitoClientID, cfg.IsDevelopment())
@@ -90,6 +91,7 @@ func main() {
 	matchHandler := handler.NewMatchHandler(matchRepo, cfg)
 	monitorHandler := handler.NewMonitorHandler(eventRepo)
 	refHandler := handler.NewReferenceHandler(courtRepo, celebRepo)
+	adminHandler := handler.NewAdminHandler(adminRepo)
 
 	// Build router
 	r := chi.NewRouter()
@@ -127,6 +129,7 @@ func main() {
 		r.Mount("/matches", matchHandler.Routes())
 		r.Mount("/monitor", monitorHandler.Routes())
 		r.Mount("/reference", refHandler.Routes())
+		r.Mount("/admin", adminHandler.Routes())
 	})
 
 	// Start server
