@@ -12,6 +12,8 @@ import (
 
 	"github.com/tmz/docketwatch-api/internal/config"
 	"github.com/tmz/docketwatch-api/internal/repository"
+	"github.com/tmz/docketwatch-api/internal/storage"
+	"github.com/tmz/docketwatch-api/internal/worker"
 )
 
 func main() {
@@ -32,25 +34,49 @@ func main() {
 	}
 	defer pool.Close()
 
-	log.Info().Msg("Starting DocketWatch background worker")
+	// Initialize S3 storage
+	var s3Store *storage.S3Store
+	if cfg.IsDevelopment() {
+		s3Store, err = storage.NewS3StoreWithEndpoint(ctx, cfg.AWSRegion, "http://localhost:4566")
+	} else {
+		s3Store, err = storage.NewS3Store(ctx, cfg.AWSRegion)
+	}
+	if err != nil {
+		log.Warn().Err(err).Msg("S3 initialization failed; cleanup worker will skip S3 operations")
+	}
 
-	// TODO: Initialize workers:
-	// - RSS poller (cron-based)
-	// - Celebrity matcher (SQS consumer)
-	// - Cleanup worker (cron-based)
-	// - Email notifier (SQS consumer)
-	//
-	// Each worker runs in its own goroutine.
-	// Use a cron library (e.g., robfig/cron) for scheduled tasks.
-	// Use SQS long-polling for event-driven tasks.
+	log.Info().Msg("Starting DocketWatch background workers")
 
-	_ = cfg
+	// Launch workers in goroutines
+	// 1. RSS Poller - checks PACER feeds every 5 minutes
+	rssPoller := worker.NewRSSPoller(pool, 5*time.Minute)
+	go rssPoller.Start(ctx)
+
+	// 2. Celebrity Matcher - runs every 15 minutes
+	matcher := worker.NewCelebrityMatcher(pool, 15*time.Minute)
+	go matcher.Start(ctx)
+
+	// 3. Cleanup Worker - runs every 24 hours
+	if s3Store != nil {
+		cleaner := worker.NewCleanupWorker(pool, s3Store, cfg.S3DocsBucket, 24*time.Hour)
+		go cleaner.Start(ctx)
+	}
+
+	// 4. Email Notifier - checks every 5 minutes
+	notifier := worker.NewEmailNotifier(pool, 5*time.Minute, "noreply@docketwatch.tmz.tv")
+	go notifier.Start(ctx)
+
+	log.Info().Msg("All workers running")
 
 	// Wait for shutdown signal
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 	<-sigCh
 
-	log.Info().Msg("Worker shutting down")
+	log.Info().Msg("Shutting down workers...")
 	cancel()
+
+	// Give workers time to finish current operations
+	time.Sleep(2 * time.Second)
+	log.Info().Msg("Workers stopped")
 }
