@@ -12,7 +12,6 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     colorSchemeSeed: primaryColor,
-    fontFamily: 'Inter',
     appBarTheme: const AppBarTheme(
       elevation: 0,
       centerTitle: false,
@@ -59,7 +58,6 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     colorSchemeSeed: primaryColor,
-    fontFamily: 'Inter',
     scaffoldBackgroundColor: const Color(0xFF121212),
     appBarTheme: const AppBarTheme(
       elevation: 0,

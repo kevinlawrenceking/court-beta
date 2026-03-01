@@ -24,9 +24,6 @@ dependencies:
   freezed_annotation: ^2.4.0
   json_annotation: ^4.9.0
 
-  # Auth
-  amazon_cognito_identity_dart_2: ^3.6.0
-
   # UI Components
   data_table_2: ^2.5.0
   file_picker: ^8.0.0
@@ -52,14 +49,3 @@ flutter:
 
   assets:
     - web/
-
-  fonts:
-    - family: Inter
-      fonts:
-        - asset: fonts/Inter-Regular.ttf
-        - asset: fonts/Inter-Medium.ttf
-          weight: 500
-        - asset: fonts/Inter-SemiBold.ttf
-          weight: 600
-        - asset: fonts/Inter-Bold.ttf
-          weight: 700
