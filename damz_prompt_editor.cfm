@@ -23,7 +23,7 @@
         }
     </style>
 </head>
-<body>
+<body data-product="docketwatch">
 
 <cfset baseNetworkPath = "\\10.146.176.84\general\docketwatch\python\">
 <cfset files = {

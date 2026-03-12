@@ -1,0 +1,1242 @@
+/*
+ * TMZ Watch Bridge — Bootstrap 5 Dark Theme Override for DocketWatch
+ *
+ * This file maps Bootstrap 5 classes to tmz-watch.css design tokens.
+ * It turns the Bootstrap light theme into the unified TMZ Watch dark theme
+ * so that existing ColdFusion pages work without markup changes.
+ *
+ * Load order:  1. bootstrap.min.css
+ *              2. tmz-watch.css (design tokens + components)
+ *              3. THIS FILE (bridge overrides)
+ *              4. DataTables / other library CSS
+ *
+ * Product accent: DocketWatch = purple (#8B5CF6) via [data-product="docketwatch"]
+ */
+
+
+/* == Bootstrap Variable Overrides =========================================== */
+
+:root,
+[data-bs-theme="dark"] {
+  --bs-body-bg: var(--bg);
+  --bs-body-color: var(--text);
+  --bs-body-font-family: var(--font-body);
+
+  --bs-primary: var(--product-accent);
+  --bs-primary-rgb: 139, 92, 246;
+  --bs-secondary: var(--surface-raised);
+  --bs-secondary-rgb: 20, 20, 20;
+  --bs-success: var(--green);
+  --bs-warning: var(--amber);
+  --bs-danger: var(--error);
+  --bs-info: var(--blue);
+  --bs-light: var(--surface-raised);
+  --bs-dark: var(--bg);
+
+  --bs-link-color: var(--product-accent-light);
+  --bs-link-color-rgb: 167, 139, 250;
+  --bs-link-hover-color: var(--product-accent);
+
+  --bs-border-color: var(--border);
+  --bs-border-color-translucent: rgba(255, 255, 255, 0.08);
+
+  --bs-emphasis-color: var(--text);
+  --bs-secondary-color: var(--text-dim);
+  --bs-tertiary-color: var(--text-ghost);
+  --bs-tertiary-bg: var(--surface);
+
+  /* DocketWatch status colors (preserved from tmz-brand.css) */
+  --status-review-bg: rgba(255, 193, 7, 0.15);
+  --status-review-text: var(--amber);
+  --status-tracked-bg: rgba(59, 130, 246, 0.15);
+  --status-tracked-text: var(--blue);
+  --status-removed-bg: rgba(229, 74, 74, 0.15);
+  --status-removed-text: var(--error);
+}
+
+
+/* == Body & Globals ========================================================= */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+
+/* == Typography ============================================================= */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.text-muted {
+  color: var(--text-ghost) !important;
+}
+
+.text-primary {
+  color: var(--product-accent) !important;
+}
+
+.text-danger {
+  color: var(--error) !important;
+}
+
+.small, small {
+  color: var(--text-dim);
+}
+
+a {
+  color: var(--product-accent-light);
+}
+
+a:hover {
+  color: var(--product-accent);
+}
+
+
+/* == Buttons ================================================================ */
+
+.btn {
+  font-family: var(--font-head);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-radius: 0;
+  transition: all var(--ease-default);
+}
+
+.btn-primary {
+  background-color: var(--product-accent);
+  border-color: var(--product-accent);
+  color: var(--text);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active {
+  background-color: var(--product-accent-light);
+  border-color: var(--product-accent-light);
+  color: var(--text);
+}
+
+.btn-secondary {
+  background-color: var(--surface-raised);
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active {
+  background-color: var(--surface);
+  border-color: var(--border-bright);
+  color: var(--text);
+}
+
+.btn-outline-primary {
+  color: var(--product-accent);
+  border-color: var(--product-accent);
+  background: transparent;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-check:checked + .btn-outline-primary {
+  background-color: var(--product-accent);
+  border-color: var(--product-accent);
+  color: var(--text);
+}
+
+.btn-outline-secondary {
+  color: var(--status-review-text) !important;
+  border-color: var(--status-review-text) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus,
+.btn-outline-secondary:active,
+.btn-outline-secondary.active {
+  background-color: var(--status-review-bg) !important;
+  border-color: var(--status-review-text) !important;
+  color: var(--status-review-text) !important;
+}
+
+.btn-outline-success {
+  color: var(--status-tracked-text) !important;
+  border-color: var(--status-tracked-text) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:focus,
+.btn-outline-success:active,
+.btn-outline-success.active {
+  background-color: var(--status-tracked-bg) !important;
+  border-color: var(--status-tracked-text) !important;
+  color: var(--status-tracked-text) !important;
+}
+
+.btn-outline-danger {
+  color: var(--status-removed-text) !important;
+  border-color: var(--status-removed-text) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus,
+.btn-outline-danger:active,
+.btn-outline-danger.active {
+  background-color: var(--status-removed-bg) !important;
+  border-color: var(--status-removed-text) !important;
+  color: var(--status-removed-text) !important;
+}
+
+.btn:focus,
+.btn.focus {
+  box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+}
+
+.btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+
+/* == Cards ================================================================== */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--text);
+}
+
+.card-header {
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.card-body {
+  background: var(--surface);
+}
+
+.card-footer {
+  background: var(--surface-raised);
+  border-top: 1px solid var(--border);
+}
+
+.filter-card .card-header {
+  background: var(--surface-raised) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text-dim) !important;
+}
+
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.info-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* == Forms ================================================================== */
+
+.form-control,
+.form-select {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0;
+  font-family: var(--font-body);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--surface);
+  border-color: var(--product-accent);
+  color: var(--text);
+  box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+}
+
+.form-control::placeholder {
+  color: var(--text-ghost);
+}
+
+.form-label {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.form-check-input:checked {
+  background-color: var(--product-accent);
+  border-color: var(--product-accent);
+}
+
+.input-group-text {
+  background-color: var(--surface-raised);
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+
+
+/* == Tables ================================================================= */
+
+.table {
+  color: var(--text-dim);
+  border-color: var(--border);
+}
+
+.table > thead {
+  color: var(--text);
+}
+
+.table > thead > tr > th {
+  background-color: var(--surface-raised);
+  color: var(--text-ghost);
+  border-bottom: 2px solid var(--border);
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.75rem;
+}
+
+.table > tbody > tr > td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.table > tbody > tr:hover {
+  background-color: var(--surface) !important;
+  color: var(--text);
+}
+
+.table-dark {
+  background-color: var(--surface-raised);
+  color: var(--text);
+}
+
+.table-dark th,
+.table-dark td {
+  border-color: var(--border);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.02);
+  color: var(--text-dim);
+}
+
+.bg-success {
+  background-color: var(--status-tracked-bg) !important;
+  color: var(--status-tracked-text) !important;
+}
+
+
+/* == DataTables Dark Override ================================================ */
+
+.dataTables_wrapper {
+  font-family: var(--font-body);
+  color: var(--text-dim);
+}
+
+.dataTables_wrapper table.dataTable thead th,
+.dataTables_wrapper table.dataTable thead td {
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  color: var(--text-ghost) !important;
+  background-color: var(--surface-raised) !important;
+  border-bottom: 2px solid var(--border) !important;
+  border-top: none !important;
+  padding: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-head);
+}
+
+.dataTables_wrapper table.dataTable thead th:hover,
+.dataTables_wrapper table.dataTable thead td:hover {
+  background-color: var(--surface) !important;
+  color: var(--text-dim) !important;
+}
+
+.dataTables_wrapper table.dataTable thead .sorting:before,
+.dataTables_wrapper table.dataTable thead .sorting:after,
+.dataTables_wrapper table.dataTable thead .sorting_asc:before,
+.dataTables_wrapper table.dataTable thead .sorting_asc:after,
+.dataTables_wrapper table.dataTable thead .sorting_desc:before,
+.dataTables_wrapper table.dataTable thead .sorting_desc:after {
+  color: var(--text-ghost) !important;
+  opacity: 0.5;
+}
+
+.dataTables_wrapper table.dataTable thead .sorting_asc:after,
+.dataTables_wrapper table.dataTable thead .sorting_desc:after {
+  opacity: 1 !important;
+  color: var(--product-accent) !important;
+}
+
+.dataTables_wrapper table.dataTable tbody tr {
+  background: var(--bg);
+  color: var(--text-dim);
+}
+
+.dataTables_wrapper table.dataTable tbody tr:hover {
+  background: var(--surface) !important;
+  color: var(--text);
+}
+
+.dataTables_wrapper table.dataTable tbody tr.odd {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label {
+  color: var(--text-ghost);
+  font-size: 12px;
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+  border-color: var(--product-accent);
+  box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  color: var(--product-accent) !important;
+  background: transparent;
+  border-color: var(--border);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  color: var(--text) !important;
+  background: var(--product-accent) !important;
+  border-color: var(--product-accent) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  color: var(--text) !important;
+  background: var(--product-accent) !important;
+  border-color: var(--product-accent) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+  color: var(--text-ghost) !important;
+  background: transparent !important;
+}
+
+
+/* == Bootstrap Pagination =================================================== */
+
+.pagination {
+  --bs-pagination-color: var(--product-accent);
+  --bs-pagination-bg: var(--surface);
+  --bs-pagination-border-color: var(--border);
+  --bs-pagination-hover-color: var(--text);
+  --bs-pagination-hover-bg: var(--product-accent);
+  --bs-pagination-hover-border-color: var(--product-accent);
+  --bs-pagination-focus-color: var(--product-accent-light);
+  --bs-pagination-focus-bg: var(--surface);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
+  --bs-pagination-active-color: var(--text);
+  --bs-pagination-active-bg: var(--product-accent);
+  --bs-pagination-active-border-color: var(--product-accent);
+  --bs-pagination-disabled-color: var(--text-ghost);
+  --bs-pagination-disabled-bg: var(--surface-raised);
+  --bs-pagination-disabled-border-color: var(--border);
+}
+
+.page-link {
+  color: var(--product-accent);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+
+/* == Navigation / Navbar ==================================================== */
+
+.navbar {
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--border);
+}
+
+.navbar-brand {
+  font-family: var(--font-head);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.navbar-brand .text-warning,
+.navbar-brand i {
+  color: var(--product-accent) !important;
+}
+
+.navbar-dark .navbar-brand {
+  color: var(--text) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: var(--text-ghost) !important;
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+  color: var(--text-dim) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link.active {
+  color: var(--text) !important;
+}
+
+.dropdown-menu {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: var(--shadow-md);
+}
+
+.dropdown-item {
+  color: var(--text-dim) !important;
+  font-size: 14px;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: var(--surface-raised);
+  color: var(--text) !important;
+}
+
+.dropdown-item i {
+  color: var(--text-ghost);
+}
+
+.dropdown-header {
+  color: var(--text-ghost) !important;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dropdown-divider {
+  border-color: var(--border);
+}
+
+
+/* == Tabs =================================================================== */
+
+.nav-tabs {
+  border-bottom: 2px solid var(--border);
+}
+
+.nav-tabs .nav-link {
+  border: none;
+  border-radius: 0;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-ghost);
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all var(--ease-default);
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--text-dim);
+  background: transparent;
+  border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+  background: transparent;
+  color: var(--text);
+  border-color: transparent;
+  border-bottom-color: var(--product-accent);
+}
+
+.tab-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0;
+}
+
+
+/* == Status Badges ========================================================== */
+
+.status-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-review {
+  background-color: var(--status-review-bg);
+  color: var(--status-review-text);
+}
+
+.status-tracked {
+  background-color: var(--status-tracked-bg);
+  color: var(--status-tracked-text);
+}
+
+.status-removed {
+  background-color: var(--status-removed-bg);
+  color: var(--status-removed-text);
+}
+
+.badge.bg-secondary {
+  background-color: var(--surface-raised) !important;
+  color: var(--text-dim);
+}
+
+
+/* == Alerts ================================================================= */
+
+.alert-info {
+  border-color: var(--blue);
+  background-color: rgba(59, 130, 246, 0.08);
+  color: var(--text-dim);
+  border-radius: 0;
+  border-left: 4px solid var(--blue);
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+.alert-warning {
+  border-color: var(--amber);
+  background-color: rgba(255, 165, 0, 0.08);
+  color: var(--text-dim);
+  border-radius: 0;
+  border-left: 4px solid var(--amber);
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+.alert-danger {
+  border-color: var(--error);
+  background-color: rgba(229, 74, 74, 0.08);
+  color: var(--text-dim);
+  border-radius: 0;
+  border-left: 4px solid var(--error);
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+.alert-success {
+  border-color: var(--green);
+  background-color: rgba(52, 199, 89, 0.08);
+  color: var(--text-dim);
+  border-radius: 0;
+  border-left: 4px solid var(--green);
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+
+/* == Modals ================================================================= */
+
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--text);
+}
+
+.modal-header {
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-footer {
+  background: var(--surface-raised);
+  border-top: 1px solid var(--border);
+}
+
+.modal-title {
+  font-family: var(--font-head);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.modal-backdrop.show {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+
+/* == SweetAlert2 Dark Override ============================================== */
+
+.swal2-popup {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.swal2-title {
+  color: var(--text) !important;
+  font-family: var(--font-head);
+}
+
+.swal2-html-container {
+  color: var(--text-dim) !important;
+}
+
+.swal2-confirm {
+  background-color: var(--product-accent) !important;
+  border-color: var(--product-accent) !important;
+  border-radius: 0 !important;
+}
+
+.swal2-confirm:hover,
+.swal2-confirm:focus {
+  background-color: var(--product-accent-light) !important;
+  border-color: var(--product-accent-light) !important;
+}
+
+.swal2-cancel {
+  background-color: var(--surface-raised) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-dim) !important;
+  border-radius: 0 !important;
+}
+
+
+/* == Select2 Dark Override ================================================== */
+
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+  background-color: var(--surface);
+  border-color: var(--border);
+  border-radius: 0;
+  color: var(--text);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: var(--text);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: var(--text-ghost) transparent transparent transparent;
+}
+
+.select2-dropdown {
+  background-color: var(--surface);
+  border-color: var(--border);
+  border-radius: 0;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--product-accent);
+  color: var(--text);
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  background: var(--bg);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.select2-container--default .select2-results__option {
+  color: var(--text-dim);
+}
+
+
+/* == DocketWatch Page-Specific Dark Overrides ================================ */
+
+/* Page title */
+.page-title {
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--text);
+  border-bottom: 2px solid var(--border);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Case header gradient (dark version) */
+.case-header {
+  background: linear-gradient(135deg, var(--surface-raised) 0%, var(--surface) 100%);
+  color: var(--text);
+  border-radius: 0;
+  border-left: 4px solid var(--product-accent);
+}
+
+/* Update header */
+.update-header {
+  background: linear-gradient(135deg, var(--surface-raised) 0%, var(--surface) 100%);
+  color: var(--text);
+  border-radius: 0;
+  border-left: 4px solid var(--product-accent);
+}
+
+/* Filter card */
+.filter-card {
+  border-left: 4px solid var(--product-accent);
+}
+
+/* Form sections */
+.form-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.form-section h6 {
+  color: var(--text-dim);
+}
+
+/* Form card */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Action buttons section */
+.btn-actions {
+  background: var(--surface-raised);
+  border-radius: 0;
+}
+
+/* Table wrapper */
+.data-table-wrapper {
+  background: var(--surface);
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+
+.cases-table-wrapper {
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+
+/* Celebrity elements */
+.celebrity-search-container,
+.subscriber-controls {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+
+.celeb-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+/* Loading overlay (dark) */
+.loading-overlay {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.spinner-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.spinner-content {
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 0;
+}
+
+/* Empty state */
+.empty-state {
+  color: var(--text-ghost);
+}
+
+.empty-state i {
+  color: var(--text-ghost);
+}
+
+/* Priority colors (for dark bg) */
+.priority-critical { color: var(--error); }
+.priority-high { color: var(--amber); }
+.priority-medium { color: var(--status-queued); }
+.priority-low { color: var(--green); }
+.priority-unknown { color: var(--text-ghost); }
+
+/* Hover row on dark bg */
+#casesTable tbody tr:hover {
+  background-color: var(--surface) !important;
+}
+
+/* Owner filter buttons (dark version) */
+#ownerFilterGroup .btn-check:checked + .btn {
+  background-color: var(--product-accent);
+  border-color: var(--product-accent);
+  color: var(--text);
+}
+
+/* Courthouse image border */
+.courthouse-image {
+  border: 2px solid var(--border);
+}
+
+/* PDF actions */
+.btn-pdf {
+  border-radius: 0;
+}
+
+/* Credentials modal dark override */
+#toolCredentialsModal .modal-header {
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+#toolCredentialsModal .modal-title {
+  color: var(--text-dim);
+}
+
+#toolCredentialsModal .input-group .form-control {
+  font-family: var(--font-mono);
+  background-color: var(--bg);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* jQuery UI overrides */
+.ui-widget {
+  font-family: var(--font-body);
+}
+
+.ui-autocomplete {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.ui-menu-item-wrapper {
+  color: var(--text-dim);
+  padding: 4px 8px;
+}
+
+.ui-state-active {
+  background: var(--product-accent) !important;
+  border-color: var(--product-accent) !important;
+  color: var(--text) !important;
+}
+
+
+/* == Red Stripe (unified branding) ========================================== */
+
+.red-stripe {
+  height: 4px;
+  background: var(--red);
+}
+
+
+/* == Scrollbar (dark) ======================================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-ghost);
+}
+
+
+/* == Case Events Page Overrides ============================================ */
+
+/* Filter controls panel */
+.filter-controls {
+  background: var(--surface) !important;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Stat cards (case_events, ai_success_dashboard, etc.) */
+.stats-cards .stat-card,
+.stat-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.stat-card .stat-number,
+.stat-number {
+  color: var(--product-accent);
+}
+
+.stat-card .stat-label,
+.stat-label {
+  color: var(--text-ghost);
+}
+
+/* Acknowledged event discovery time (dark version) */
+.event-alert.acknowledged .discovery-time {
+  background: linear-gradient(135deg, var(--surface-raised), var(--surface)) !important;
+  color: var(--text-ghost) !important;
+}
+
+/* Event status badges (dark-safe overrides) */
+.status-rss {
+  background: linear-gradient(45deg, #FFA726, #FF9800) !important;
+  color: #000 !important;
+}
+
+.status-rss-pending {
+  background: linear-gradient(45deg, #FFCA28, #FFB300) !important;
+  color: #000 !important;
+}
+
+.status-null {
+  background: linear-gradient(45deg, var(--text-ghost), #555) !important;
+  color: var(--text) !important;
+}
+
+/* Priority badges with bg colors (case_events uses bg-colored badges) */
+.priority-badge.priority-critical {
+  background-color: rgba(239, 83, 80, 0.2) !important;
+  color: #EF5350 !important;
+}
+
+.priority-badge.priority-high {
+  background-color: rgba(255, 167, 38, 0.2) !important;
+  color: #FFA726 !important;
+}
+
+.priority-badge.priority-medium {
+  background-color: rgba(255, 202, 40, 0.2) !important;
+  color: #FFCA28 !important;
+}
+
+.priority-badge.priority-low {
+  background-color: rgba(102, 187, 106, 0.2) !important;
+  color: #66BB6A !important;
+}
+
+.priority-badge.priority-unknown {
+  background-color: rgba(113, 113, 113, 0.2) !important;
+  color: var(--text-ghost) !important;
+}
+
+/* Timestamp badge */
+.timestamp-badge {
+  background: var(--surface-raised);
+  color: var(--text-dim);
+  border-radius: 0;
+}
+
+/* Floating ack button badge override */
+.floating-ack-btn .badge {
+  background: var(--surface) !important;
+  color: var(--product-accent) !important;
+  border-color: var(--product-accent) !important;
+}
+
+/* Case avatars (dark border) */
+.case-header .case-avatar,
+.case-avatar {
+  border-color: var(--border) !important;
+}
+
+.case-header .case-avatar-placeholder-header,
+.case-avatar-placeholder {
+  background: linear-gradient(135deg, var(--text-ghost), #555) !important;
+  border-color: var(--border) !important;
+}
+
+/* jQuery UI datepicker dark */
+.ui-datepicker {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.ui-datepicker-header {
+  background: var(--surface-raised) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+.ui-datepicker td a,
+.ui-datepicker td span {
+  color: var(--text-dim) !important;
+}
+
+.ui-datepicker td a:hover {
+  background: var(--product-accent) !important;
+  color: var(--text) !important;
+}
+
+.ui-datepicker .ui-state-active {
+  background: var(--product-accent) !important;
+  color: var(--text) !important;
+}
+
+
+/* == Misc Dark Background Overrides ======================================== */
+
+/* Override any remaining white/light backgrounds in inline styles */
+.bg-light {
+  background-color: var(--surface) !important;
+}
+
+.bg-white {
+  background-color: var(--surface) !important;
+}
+
+.text-dark {
+  color: var(--text) !important;
+}
+
+.border {
+  border-color: var(--border) !important;
+}
+
+.shadow-sm,
+.shadow {
+  box-shadow: none !important;
+}
+
+/* General list group dark */
+.list-group-item {
+  background-color: var(--surface);
+  color: var(--text-dim);
+  border-color: var(--border);
+}
+
+.list-group-item:hover {
+  background-color: var(--surface-raised);
+  color: var(--text);
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+  background: transparent;
+}
+
+.breadcrumb-item a {
+  color: var(--product-accent-light);
+}
+
+.breadcrumb-item.active {
+  color: var(--text-ghost);
+}
+
+/* Progress bars */
+.progress {
+  background-color: var(--surface-raised);
+  border-radius: 0;
+}
+
+.progress-bar {
+  background-color: var(--product-accent);
+}
+
+/* Accordion */
+.accordion-item {
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+
+.accordion-button {
+  background-color: var(--surface);
+  color: var(--text);
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--surface-raised);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.accordion-button::after {
+  filter: invert(1) brightness(2);
+}
+
+/* Toast */
+.toast {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.toast-header {
+  background-color: var(--surface-raised);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Calendar overrides (for calendar.cfm) */
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+  border-color: var(--border);
+}
+
+.fc .fc-button-primary {
+  background-color: var(--product-accent);
+  border-color: var(--product-accent);
+}
+
+.fc .fc-button-primary:hover {
+  background-color: var(--product-accent-light);
+}
+
+.fc .fc-daygrid-day {
+  background: var(--bg);
+}
+
+.fc .fc-day-today {
+  background: var(--surface) !important;
+}

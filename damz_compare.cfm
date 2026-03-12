@@ -27,7 +27,7 @@
         }
     </style>
 </head>
-<body>
+<body data-product="docketwatch">
 
 <!--- Parameter validation with session support --->
 <cfparam name="URL.fk_asset" default="EBB41D65-A6BF-409E-A2DB-6B1D2B1E01B3">

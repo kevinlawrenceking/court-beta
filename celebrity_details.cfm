@@ -126,7 +126,7 @@ WHERE  c.id = <cfqueryparam value="#url.id#" cfsqltype="cf_sql_varchar">
     }
   </style>
 </head>
-<body>
+<body data-product="docketwatch">
   <cfinclude template="navbar.cfm">
 
   <div class="container mt-4">

@@ -12,7 +12,7 @@
   <title>DocketWatch - Tool Setup</title>
   <cfinclude template="head.cfm">
 </head>
-<body>
+<body data-product="docketwatch">
 <cfinclude template="navbar.cfm">
 
 <div class="container mt-4">

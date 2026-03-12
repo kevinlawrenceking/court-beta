@@ -40,7 +40,7 @@
     .legend { font-size: 12px; color: #666; margin-bottom: 16px; }
   </style>
 </head>
-<body>
+<body data-product="docketwatch">
   <h1>Murder rate (per 100K)</h1>
   <div class="legend">Data provided by requestor. Buttons show rate only. Click to toggle details.</div>
 

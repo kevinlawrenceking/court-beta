@@ -7,7 +7,7 @@
 
     <cfinclude template="head.cfm"> <!--- Bootstrap, FontAwesome, etc. --->
 </head>
-<body>
+<body data-product="docketwatch">
 
 <cfinclude template="navbar.cfm">
 

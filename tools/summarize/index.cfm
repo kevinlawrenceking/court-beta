@@ -17,7 +17,7 @@
     <!--- Bootstrap 5 JS --->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
+<body data-product="docketwatch">
 
 <!--- Simple Navigation Bar --->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">

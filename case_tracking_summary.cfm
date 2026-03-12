@@ -6,7 +6,7 @@
     <title>Case Tracking Summary</title>
     <Cfinclude template="head.cfm"> <!--- Includes Bootstrap & DataTables CSS --->
 </head>
-<body>
+<body data-product="docketwatch">
 
 <Cfinclude template="navbar.cfm"> <!--- Navigation Bar --->
 

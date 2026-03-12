@@ -133,7 +133,7 @@ This allows for cleanup of PDFs that are no longer needed.
         }
     </style>
 </head>
-<body>
+<body data-product="docketwatch">
 
 <cfinclude template="navbar.cfm">
 

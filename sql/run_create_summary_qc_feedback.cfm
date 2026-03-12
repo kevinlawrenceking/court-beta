@@ -4,7 +4,7 @@
 <head>
     <title>Create Summary QC Feedback Table</title>
 </head>
-<body>
+<body data-product="docketwatch">
     <h1>Creating summary_qc_feedback Table</h1>
     
     <cfquery datasource="Reach" result="result1">

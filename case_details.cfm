@@ -333,7 +333,7 @@ ORDER BY r.created_at DESC
         }
     </style>
 </head>
-<body>
+<body data-product="docketwatch">
 
 <cfinclude template="navbar.cfm">
 

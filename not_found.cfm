@@ -23,7 +23,7 @@ ORDER BY c.last_not_found DESC
   <title>DocketWatch - Cases Not Found</title>
   <cfinclude template="head.cfm">
 </head>
-<body>
+<body data-product="docketwatch">
 
 <cfinclude template="navbar.cfm">
 

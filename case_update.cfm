@@ -61,7 +61,7 @@ ORDER BY o.court_name
   <title><cfif case_mode EQ "new">New Case Form<cfelse><cfoutput>Update Case - #getCase.case_number#</cfoutput></cfif></title>
   <cfinclude template="head.cfm">
 </head>
-<body>
+<body data-product="docketwatch">
 
 <cfinclude template="navbar.cfm">
 

@@ -270,72 +270,77 @@ const allColumnKeys = [
     <cfinclude template="head.cfm">
     
     <style>
-        /* Professional improvements for DocketWatch interface */
+        /* DocketWatch page-specific overrides (dark theme) */
         .page-title {
-            font-weight: 600;
-            color: #1e293b;
-            border-bottom: 2px solid #e2e8f0;
+            font-family: var(--font-head);
+            font-weight: 700;
+            color: var(--text);
+            border-bottom: 2px solid var(--border-bright);
             padding-bottom: 0.5rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .filter-card .card-header {
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            border-bottom: 1px solid #cbd5e1;
+            background: var(--surface-raised);
+            border-bottom: 1px solid var(--border);
             font-weight: 500;
-            color: #475569;
+            color: var(--text-dim);
         }
-        
+
         .cases-table-wrapper {
-            border-radius: 8px;
+            border-radius: 0;
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: none;
+            border: 1px solid var(--border);
         }
-        
+
         #casesTable tbody tr:hover {
-            background-color: #f1f5f9 !important;
+            background-color: var(--surface-raised) !important;
             transition: background-color 0.2s ease;
         }
-        
+
         .btn-group-actions .btn {
             margin-right: 0.5rem;
             margin-bottom: 0.25rem;
         }
-        
+
         .status-badge {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.375rem;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 2px;
             font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
-        
+
         /* Owner filter button group styling */
         #ownerFilterGroup {
             gap: 0.5rem;
         }
-        
+
         #ownerFilterGroup .btn {
-            border-radius: 0.375rem;
+            border-radius: 0;
             transition: all 0.2s ease;
         }
-        
+
         #ownerFilterGroup .btn-check:checked + .btn {
-            background-color: #0ea5e9;
-            border-color: #0ea5e9;
-            color: white;
+            background-color: var(--product-accent);
+            border-color: var(--product-accent);
+            color: #fff;
         }
-        
+
         #ownerFilterGroup .btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
-        .priority-critical { color: #dc2626; font-weight: 700; }  /* Red - Critical */
-        .priority-high { color: #ea580c; font-weight: 600; }      /* Orange - High */
-        .priority-medium { color: #d97706; font-weight: 500; }    /* Amber/Yellow - Medium */
-        .priority-low { color: #16a34a; font-weight: 400; }       /* Green - Low */
-        .priority-unknown { color: #6b7280; font-weight: 400; }   /* Gray - Unknown */
-        
+
+        .priority-critical { color: #EF5350; font-weight: 700; }
+        .priority-high { color: #FFA726; font-weight: 600; }
+        .priority-medium { color: #FFCA28; font-weight: 500; }
+        .priority-low { color: #66BB6A; font-weight: 400; }
+        .priority-unknown { color: var(--text-ghost); font-weight: 400; }
+
         @media (max-width: 768px) {
             .filter-row > div {
                 margin-bottom: 0.5rem;
@@ -347,7 +352,7 @@ const allColumnKeys = [
         }
     </style>
 </head>
-<body>
+<body data-product="docketwatch">
 
 <cfinclude template="navbar.cfm">
 

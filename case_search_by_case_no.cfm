@@ -8,7 +8,7 @@
     <Cfinclude template="head.cfm">
 
 </head>
-<body>
+<body data-product="docketwatch">
 
 <Cfinclude template="navbar.cfm" />
 

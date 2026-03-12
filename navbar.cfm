@@ -1,10 +1,14 @@
-<!--- Navigation Bar --->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm" style="background-color: #000000 !important;">
+<!--- TMZ Watch Unified Navbar --->
+<div class="red-stripe"></div>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <!--- App Title with Logo --->
-        <a class="navbar-brand fw-bold" href="./index.cfm">
-            <i class="fas fa-gavel me-2 text-warning"></i>
-            <cfoutput>#application.appType eq "docketwatch" ? "DocketWatch" : "TMZ Tools"#</cfoutput>
+        <!--- App Brand (TMZ + Product Name) --->
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="./index.cfm">
+            <span style="font-family: var(--font-head); font-size: 18px; color: var(--text);">TMZ</span>
+            <span style="font-family: var(--font-head); font-size: 16px; color: var(--product-accent);">
+                <cfoutput>#application.appType eq "docketwatch" ? "DOCKETWATCH" : "TMZ TOOLS"#</cfoutput>
+            </span>
         </a>
 
         <!--- Navbar Toggle (For Mobile View) --->
@@ -109,9 +113,12 @@
                     </ul>
                 </li>
             </ul>
-            
-            <!--- Right-aligned User and Logout section --->
-            <ul class="navbar-nav">
+
+            <!--- Right-aligned Meta + User section --->
+            <ul class="navbar-nav d-flex align-items-center">
+                <li class="nav-item me-3" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-ghost); text-transform: uppercase; letter-spacing: 0.08em;">
+                    <span id="navClock"></span>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-light d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-user-circle me-2"></i>
@@ -132,3 +139,19 @@
         </div>
     </div>
 </nav>
+
+<script>
+(function() {
+    function tickNavClock() {
+        var el = document.getElementById("navClock");
+        if (!el) return;
+        var now = new Date();
+        el.textContent =
+            String(now.getHours()).padStart(2, "0") + ":" +
+            String(now.getMinutes()).padStart(2, "0") + ":" +
+            String(now.getSeconds()).padStart(2, "0");
+    }
+    tickNavClock();
+    setInterval(tickNavClock, 1000);
+})();
+</script>

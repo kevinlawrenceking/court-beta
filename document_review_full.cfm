@@ -60,7 +60,7 @@
     <title><cfoutput>Document Review</cfoutput></title>
     <cfinclude template="head.cfm"> <!--- Includes Bootstrap & DataTables CSS --->
 </head>
-<body>
+<body data-product="docketwatch">
 
 <<div class="container-fluid mt-3">
     <div class="row">

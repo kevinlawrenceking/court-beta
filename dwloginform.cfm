@@ -19,7 +19,7 @@
         }
     </style>
 </head>
-<body>
+<body data-product="docketwatch">
     <div class="container">
         <div class="login-container">
             <div class="card">

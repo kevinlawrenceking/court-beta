@@ -6,7 +6,7 @@
   <title>DocketWatch - Add Case</title>
   <cfinclude template="head.cfm">
 </head>
-<body>
+<body data-product="docketwatch">
 <cfinclude template="navbar.cfm">
 
 <div class="container mt-5">

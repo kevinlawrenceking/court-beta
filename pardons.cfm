@@ -30,7 +30,7 @@ ORDER BY p.[pardon_date] DESC, p.[name]
     .celeb-link { color: #337ab7; margin-left: 5px; font-size: 1em; }
   </style>
 </head>
-<body>
+<body data-product="docketwatch">
 <cfinclude template="navbar.cfm">
 
 <div class="container mt-4">

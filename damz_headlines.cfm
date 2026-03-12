@@ -10,7 +10,7 @@
     .edit-btn { font-size: 0.8em; }
   </style>
 </head>
-<body>
+<body data-product="docketwatch">
 <cfinclude template="navbar.cfm">
 
 <div class="container mt-4">
